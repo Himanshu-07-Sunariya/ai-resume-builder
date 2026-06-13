@@ -6,7 +6,8 @@ const {
     getAllResumes,
     updateResume,
     deleteResume,
-    getResumeById
+    getResumeById,
+    getFullResume
 }=require('../controllers/resumeController');
 
 const router = express.Router();
@@ -14,6 +15,7 @@ const router = express.Router();
 router.post("/api/resumes", validateResume, createResume);
 router.get("/api/resumes", getAllResumes);
 router.get("/api/resumes/:id",getResumeById);
+router.get("/api/resumes/:id/full",getFullResume);
 router.patch("/api/resumes/:id", updateResume);
 router.delete("/api/resumes/:id", deleteResume);
 

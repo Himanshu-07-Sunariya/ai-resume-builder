@@ -7,6 +7,7 @@ datasource db {
   url = env("DATABASE_URL")
 }
 
+
 model Resume {
   id         Int      @id @default(autoincrement())
   title      String
@@ -20,6 +21,12 @@ model Resume {
   summary    String?
 
   educations Education[]
+
+  experiences Experience[]
+
+  projects Project[]
+
+  skills Skill[]
 
   createdAt  DateTime @default(now())
 }
@@ -39,4 +46,49 @@ model Education {
   resume      Resume   @relation(fields: [resumeId], references: [id])
 
   createdAt   DateTime @default(now())
+}
+
+model Experience {
+  id          Int      @id @default(autoincrement())
+
+  company     String
+  role        String
+  description String
+
+  startDate   String
+  endDate     String
+
+  resumeId    Int
+
+  resume      Resume @relation(fields: [resumeId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+model Project {
+  id          Int      @id @default(autoincrement())
+
+  title       String
+  description String
+
+  githubLink  String?
+  liveLink    String?
+
+  resumeId    Int
+
+  resume      Resume @relation(fields: [resumeId], references: [id])
+
+  createdAt   DateTime @default(now())
+}
+
+model Skill {
+  id        Int      @id @default(autoincrement())
+
+  name      String
+
+  resumeId  Int
+
+  resume    Resume @relation(fields: [resumeId], references: [id])
+
+  createdAt DateTime @default(now())
 }

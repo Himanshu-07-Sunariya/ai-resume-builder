@@ -1,6 +1,6 @@
 const prisma=require('../config/prisma');
 
-const createResume=async (req, res) => {
+const createResume=async (req, res, next) => {
     try {
         const {
             title,
@@ -36,7 +36,7 @@ const createResume=async (req, res) => {
     }
 };
 
-const getAllResumes=async (req,res)=>{
+const getAllResumes=async (req,res,next)=>{
     try {
         const resumes=await prisma.resume.findMany();
 
@@ -51,7 +51,7 @@ const getAllResumes=async (req,res)=>{
     }
 };
 
-const getResumeById=async(req,res)=>{
+const getResumeById=async(req,res,next)=>{
     try{
         const {id}=req.params;
 
@@ -79,7 +79,35 @@ const getResumeById=async(req,res)=>{
     }
 };
 
-const updateResume=async (req, res) => {
+const getFullResume=async(req,res,next)=>{
+    try{
+        const {id}=req.params;
+
+        const resume=await prisma.resume.findUnique({
+            where:{
+                id:Number(id)
+            },
+            include:{
+                educations:true,
+                experiences:true,
+                projects:true,
+                skills:true
+            }
+        });
+
+
+        res.json(resume);
+    }
+     catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            message: "Something went wrong"
+        });
+    }
+};
+
+const updateResume=async (req, res, next) => {
     try {
         const {id}=req.params;
         const {title}=req.body;
@@ -104,7 +132,7 @@ const updateResume=async (req, res) => {
     }
 };
 
-const deleteResume=async (req, res) => {
+const deleteResume=async (req, res, next) => {
     try {
         const {id}=req.params;
 
@@ -125,4 +153,4 @@ const deleteResume=async (req, res) => {
     }
 };
 
-module.exports = {  createResume, getAllResumes,getResumeById, updateResume, deleteResume };  
+module.exports = {  createResume, getAllResumes,getResumeById, updateResume, deleteResume ,getFullResume};  
