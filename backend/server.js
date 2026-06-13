@@ -6,6 +6,7 @@ const educationRoutes=require('./routes/educationRoutes');
 const experienceRoutes=require('./routes/experienceRoutes');
 const projectRoutes=require('./routes/projectRoutes');
 const skillRoutes=require('./routes/skillRoutes');
+const authRoutes = require("./routes/authRoutes");
 
 const app = express();
 
@@ -13,6 +14,8 @@ app.use(express.json());
 
 app.use(loggerMiddleware);
 // global middleware
+
+app.use("/",authRoutes);
 
 app.use("/", resumeRoutes);
 

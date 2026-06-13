@@ -10,13 +10,15 @@ const {
     getFullResume
 }=require('../controllers/resumeController');
 
+const authMiddleware=require('../middleware/authMiddleware').authMiddleware;
+
 const router = express.Router();
 
-router.post("/api/resumes", validateResume, createResume);
-router.get("/api/resumes", getAllResumes);
-router.get("/api/resumes/:id",getResumeById);
-router.get("/api/resumes/:id/full",getFullResume);
-router.patch("/api/resumes/:id", updateResume);
-router.delete("/api/resumes/:id", deleteResume);
+router.post("/api/resumes",authMiddleware, validateResume, createResume);
+router.get("/api/resumes",authMiddleware,getAllResumes);
+router.get("/api/resumes/:id",authMiddleware,getResumeById);
+router.get("/api/resumes/:id/full",authMiddleware,getFullResume);
+router.patch("/api/resumes/:id",authMiddleware,updateResume);
+router.delete("/api/resumes/:id",authMiddleware, deleteResume);
 
 module.exports = router;

@@ -4,10 +4,12 @@ const {
     createProject
 } = require("../controllers/projectController");
 
+const authMiddleware=require('../middleware/authMiddleware').authMiddleware;
+
 const router = express.Router();
 
 router.post(
-    "/api/resumes/:resumeId/projects",
+    "/api/resumes/:resumeId/projects",authMiddleware,
     createProject
 );
 

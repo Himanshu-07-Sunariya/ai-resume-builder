@@ -8,7 +8,8 @@ const createResume=async (req, res, next) => {
             lastName,
             email,
             phone,
-            summary
+            summary,
+            userId
         } = req.body;
 
         const resume = await prisma.resume.create({
@@ -18,7 +19,8 @@ const createResume=async (req, res, next) => {
                 lastName,
                 email,
                 phone,
-                summary
+                summary,
+                userId: req.user.userId
             }
         });
 
@@ -38,7 +40,11 @@ const createResume=async (req, res, next) => {
 
 const getAllResumes=async (req,res,next)=>{
     try {
-        const resumes=await prisma.resume.findMany();
+        const resumes=await prisma.resume.findMany({
+            where:{
+                userId:req.user.userId
+            }
+        });
 
         res.json(resumes);
     }
@@ -55,9 +61,10 @@ const getResumeById=async(req,res,next)=>{
     try{
         const {id}=req.params;
 
-        const resume=await prisma.resume.findUnique({
+        const resume=await prisma.resume.findFirst({
             where:{
-                id:Number(id)
+                id:Number(id),
+                userId:req.user.userId
             }
         })
 
@@ -83,9 +90,10 @@ const getFullResume=async(req,res,next)=>{
     try{
         const {id}=req.params;
 
-        const resume=await prisma.resume.findUnique({
+        const resume = await prisma.resume.findFirst({
             where:{
-                id:Number(id)
+                id:Number(id),
+                userId:req.user.userId
             },
             include:{
                 educations:true,
@@ -95,6 +103,11 @@ const getFullResume=async(req,res,next)=>{
             }
         });
 
+        if(!resume){
+            return res.status(404).json({
+                message:"Resume not found"
+            });
+        }
 
         res.json(resume);
     }
@@ -112,9 +125,23 @@ const updateResume=async (req, res, next) => {
         const {id}=req.params;
         const {title}=req.body;
 
+        const existingResume =
+        await prisma.resume.findFirst({
+            where:{
+                id:Number(id),
+                userId:req.user.userId
+            }
+        });
+
+        if(!existingResume){
+            return res.status(404).json({
+                message:"Resume not found"
+            });
+        }
+
         const resume = await prisma.resume.update({
             where: {
-                id: Number(id)  
+                id: Number(id)
             },
             data: {
                 title
@@ -135,6 +162,20 @@ const updateResume=async (req, res, next) => {
 const deleteResume=async (req, res, next) => {
     try {
         const {id}=req.params;
+
+        const existingResume =
+            await prisma.resume.findFirst({
+                where:{
+                    id:Number(id),
+                    userId:req.user.userId
+                }
+            });
+
+            if(!existingResume){
+                return res.status(404).json({
+                    message:"Resume not found"
+                });
+            }
 
         const resume = await prisma.resume.delete({
             where: {
