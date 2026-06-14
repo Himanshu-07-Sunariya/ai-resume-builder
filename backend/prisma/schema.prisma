@@ -43,6 +43,8 @@ model Resume {
 
   skills Skill[]
 
+  template String @default("modern")
+
   createdAt  DateTime @default(now())
 }
 

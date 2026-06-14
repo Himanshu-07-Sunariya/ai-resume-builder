@@ -7,7 +7,8 @@ const {
     updateResume,
     deleteResume,
     getResumeById,
-    getFullResume
+    getFullResume,
+    updateTemplate
 }=require('../controllers/resumeController');
 
 const authMiddleware=require('../middleware/authMiddleware').authMiddleware;
@@ -19,6 +20,11 @@ router.get("/api/resumes",authMiddleware,getAllResumes);
 router.get("/api/resumes/:id",authMiddleware,getResumeById);
 router.get("/api/resumes/:id/full",authMiddleware,getFullResume);
 router.patch("/api/resumes/:id",authMiddleware,updateResume);
+router.patch(
+    "/api/resumes/:id/template",
+    authMiddleware,
+    updateTemplate
+);
 router.delete("/api/resumes/:id",authMiddleware, deleteResume);
 
 module.exports = router;

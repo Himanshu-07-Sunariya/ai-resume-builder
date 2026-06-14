@@ -7,6 +7,7 @@ const experienceRoutes=require('./routes/experienceRoutes');
 const projectRoutes=require('./routes/projectRoutes');
 const skillRoutes=require('./routes/skillRoutes');
 const authRoutes = require("./routes/authRoutes");
+const pdfRoutes = require("./routes/pdfRoutes");
 
 const app = express();
 
@@ -26,6 +27,8 @@ app.use("/",experienceRoutes);
 app.use("/",projectRoutes);
 
 app.use("/",skillRoutes);
+
+app.use("/",pdfRoutes);
 
 app.use(errorMiddleware);
 

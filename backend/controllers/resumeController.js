@@ -159,6 +159,43 @@ const updateResume=async (req, res, next) => {
     }
 };
 
+const updateTemplate = async(req,res,next)=>{
+    try{
+
+        const { id } = req.params;
+        const { template } = req.body;
+
+        const existingResume =
+        await prisma.resume.findFirst({
+            where:{
+                id:Number(id),
+                userId:req.user.userId
+            }
+        });
+
+        if(!existingResume){
+            return res.status(404).json({
+                message:"Resume not found"
+            });
+        }
+
+        const resume =
+        await prisma.resume.update({
+            where:{
+                id:Number(id)
+            },
+            data:{
+                template
+            }
+        });
+
+        res.json(resume);
+
+    }catch(error){
+        next(error);
+    }
+};
+
 const deleteResume=async (req, res, next) => {
     try {
         const {id}=req.params;
@@ -194,4 +231,4 @@ const deleteResume=async (req, res, next) => {
     }
 };
 
-module.exports = {  createResume, getAllResumes,getResumeById, updateResume, deleteResume ,getFullResume};  
+module.exports = {  createResume, getAllResumes,getResumeById, updateResume, deleteResume ,getFullResume,updateTemplate};  
