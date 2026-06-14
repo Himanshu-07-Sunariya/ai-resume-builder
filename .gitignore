@@ -4,3 +4,14 @@ node_modules
 
 /generated/prisma
 git 
+
+# build files
+dist
+build
+
+# logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
