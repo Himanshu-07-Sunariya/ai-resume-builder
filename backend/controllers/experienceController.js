@@ -44,4 +44,62 @@ const createExperience= async(req,res,next)=>{
     }
 };
 
-module.exports={createExperience};
+const updateExperience = async (req,res,next)=>{
+  try{
+
+    const { id } = req.params;
+
+    const {
+      company,
+      role,
+      description,
+      startDate,
+      endDate
+    } = req.body;
+
+    const experience =
+      await prisma.experience.update({
+        where:{
+          id:Number(id)
+        },
+        data:{
+          company,
+          role,
+          description,
+          startDate,
+          endDate
+        }
+      });
+
+    res.json(experience);
+
+  }catch(error){
+    next(error);
+  }
+};
+
+const deleteExperience = async (req, res, next) => {
+  try {
+
+    const { id } = req.params;
+
+    await prisma.experience.delete({
+      where: {
+        id: Number(id)
+      }
+    });
+
+    res.json({
+      message: "Experience deleted"
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  createExperience,
+  deleteExperience,
+    updateExperience
+};

@@ -44,6 +44,60 @@ const createProject = async (req,res,next)=>{
     }
 };
 
+const updateProject = async (req,res,next)=>{
+  try{
+
+    const { id } = req.params;
+
+    const {
+      title,
+      description,
+      githubLink,
+      liveLink
+    } = req.body;
+
+    const project =
+      await prisma.project.update({
+        where:{
+          id:Number(id)
+        },
+        data:{
+          title,
+          description,
+          githubLink,
+          liveLink
+        }
+      });
+
+    res.json(project);
+
+  }catch(error){
+    next(error);
+  }
+};
+
+const deleteProject = async (req, res, next) => {
+  try {
+
+    const { id } = req.params;
+
+    await prisma.project.delete({
+      where: {
+        id: Number(id)
+      }
+    });
+
+    res.json({
+      message: "Project deleted"
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
-    createProject
+  createProject,
+  deleteProject,
+    updateProject
 };

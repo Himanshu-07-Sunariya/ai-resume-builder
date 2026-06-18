@@ -34,6 +34,48 @@ const createSkill = async(req,res,next)=>{
     }
 };
 
+const updateSkill = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    const skill = await prisma.skill.update({
+      where: {
+        id: Number(id),
+      },
+      data: {
+        name,
+      },
+    });
+
+    res.json(skill);
+  } catch (error) {
+    next(error);
+  }
+};
+
+const deleteSkill = async (req, res, next) => {
+  try {
+
+    const { id } = req.params;
+
+    await prisma.skill.delete({
+      where: {
+        id: Number(id)
+      }
+    });
+
+    res.json({
+      message: "Skill deleted"
+    });
+
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
-    createSkill
+  createSkill,
+  updateSkill,
+  deleteSkill
 };

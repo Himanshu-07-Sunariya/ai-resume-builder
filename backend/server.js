@@ -8,6 +8,7 @@ const projectRoutes=require('./routes/projectRoutes');
 const skillRoutes=require('./routes/skillRoutes');
 const authRoutes = require("./routes/authRoutes");
 const pdfRoutes = require("./routes/pdfRoutes");
+const cors=require("cors");
 
 const app = express();
 
@@ -15,6 +16,8 @@ app.use(express.json());
 
 app.use(loggerMiddleware);
 // global middleware
+
+app.use(cors());
 
 app.use("/",authRoutes);
 

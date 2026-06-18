@@ -1,0 +1,11 @@
+node_modules
+dist
+build
+.next
+out
+coverage
+.git
+.vscode
+.idea
+*.log
+*.tmp
