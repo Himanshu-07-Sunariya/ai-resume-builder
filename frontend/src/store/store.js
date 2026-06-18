@@ -8,15 +8,31 @@ export const useAuthStore = create(
       token: null,
       isAuthenticated: false,
       
-      setUser: (user) => set({ user, isAuthenticated: !!user }),
-      setToken: (token) => set({ token, isAuthenticated: !!token }),
-      logout: () => set({ user: null, token: null, isAuthenticated: false }),
-      
+      setAuth: (token, user) =>
+        set({ token, user, isAuthenticated: !!(token && user) }),
+      setUser: (user) =>
+        set((state) => ({ user, isAuthenticated: !!(state.token && user) })),
+      setToken: (token) =>
+        set((state) => ({ token, isAuthenticated: !!(token && state.user) })),
+      logout: () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        set({ user: null, token: null, isAuthenticated: false });
+      },
+
       initFromStorage: () => {
         const token = localStorage.getItem('token');
         const user = localStorage.getItem('user');
-        if (token && user) {
-          set({ token, user: JSON.parse(user), isAuthenticated: true });
+        if (!token || !user || user === 'undefined') return;
+
+        try {
+          const parsedUser = JSON.parse(user);
+          if (parsedUser) {
+            set({ token, user: parsedUser, isAuthenticated: true });
+          }
+        } catch {
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
         }
       },
     }),

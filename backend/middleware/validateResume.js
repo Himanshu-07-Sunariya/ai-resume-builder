@@ -1,21 +1,9 @@
 const validateResume = (req, res, next) => {
-    const {
-        title,
-        firstName,
-        lastName,
-        email,
-        phone
-    } = req.body;
+    const { title } = req.body;
 
-    if (
-        !title ||
-        !firstName ||
-        !lastName ||
-        !email ||
-        !phone
-    ) {
+    if (!title) {
         return res.status(400).json({
-            message: "All required fields must be provided"
+            message: "Resume title is required"
         });
     }
 

@@ -1,17 +1,31 @@
 import { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { resumeAPI } from '../api/endpoints';
 import { useToast } from '../hooks/useToast';
 import ResumeBuilderLeft from '../components/builder/ResumeBuilderLeft';
 import ResumePreview from '../components/builder/ResumePreview';
 import { Save, Download } from 'lucide-react';
+import { RESUME_TEMPLATES } from '../constants';
+import { saveResume, toFrontendResume } from '../utils/resumeMapper';
+
+const createEmptyResume = (template = 'modern') => ({
+  title: 'Untitled Resume',
+  template,
+  personal: {},
+  summary: '',
+  educations: [],
+  experiences: [],
+  projects: [],
+  skills: [],
+});
 
 export default function ResumeBuilder() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { showSuccess, showError } = useToast();
   const [resume, setResume] = useState(null);
+  const [existingResume, setExistingResume] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -19,25 +33,17 @@ export default function ResumeBuilder() {
     if (id) {
       fetchResume();
     } else {
-      // Create new resume
-      setResume({
-        title: 'Untitled Resume',
-        template: 'modern',
-        personal: {},
-        summary: '',
-        educations: [],
-        experiences: [],
-        projects: [],
-        skills: []
-      });
+      const selectedTemplate = location.state?.template || 'modern';
+      setResume(createEmptyResume(selectedTemplate));
       setIsLoading(false);
     }
-  }, [id]);
+  }, [id, location.state?.template]);
 
   const fetchResume = async () => {
     try {
       const data = await resumeAPI.getFull(id);
-      setResume(data);
+      setExistingResume(data);
+      setResume(toFrontendResume(data));
     } catch (error) {
       showError('Failed to load resume');
       navigate('/dashboard');
@@ -46,19 +52,27 @@ export default function ResumeBuilder() {
     }
   };
 
+  const handleTemplateChange = (template) => {
+    setResume((prev) => ({ ...prev, template }));
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      if (id) {
-        await resumeAPI.update(id, resume);
-        showSuccess('Resume saved successfully');
+      const savedResume = await saveResume(resume, id || null, existingResume);
+
+      if (!id) {
+        navigate(`/builder/${savedResume.id}`, { replace: true });
       } else {
-        const created = await resumeAPI.create(resume);
-        navigate(`/builder/${created.id}`);
-        showSuccess('Resume created successfully');
+        const refreshed = await resumeAPI.getFull(id);
+        setExistingResume(refreshed);
+        setResume(toFrontendResume(refreshed));
       }
+
+      showSuccess(id ? 'Resume saved successfully' : 'Resume created successfully');
     } catch (error) {
-      showError('Failed to save resume');
+      const message = error.response?.data?.message || 'Failed to save resume';
+      showError(message);
     } finally {
       setIsSaving(false);
     }
@@ -95,11 +109,30 @@ export default function ResumeBuilder() {
 
   return (
     <div className="h-screen bg-light overflow-hidden">
-      {/* Header */}
       <div className="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-dark">{resume.title}</h1>
-          <p className="text-sm text-gray-500">Template: {resume.template}</p>
+        <div className="flex items-center gap-4">
+          <div>
+            <input
+              type="text"
+              value={resume.title}
+              onChange={(e) => setResume({ ...resume, title: e.target.value })}
+              className="text-2xl font-bold text-dark bg-transparent border-b border-transparent hover:border-gray-300 focus:border-primary-500 focus:outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-xs text-gray-500 block mb-1">Template</label>
+            <select
+              value={resume.template}
+              onChange={(e) => handleTemplateChange(e.target.value)}
+              className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+            >
+              {RESUME_TEMPLATES.map((template) => (
+                <option key={template.id} value={template.id}>
+                  {template.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="flex gap-3">
           <button
@@ -121,7 +154,6 @@ export default function ResumeBuilder() {
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex h-[calc(100vh-70px)] overflow-hidden">
         <ResumeBuilderLeft resume={resume} setResume={setResume} />
         <div className="flex-1 overflow-auto">

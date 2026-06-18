@@ -1,19 +1,27 @@
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 
 export default function SummarySection({ resume, setResume }) {
-  const { register, handleSubmit } = useForm({
+  const { register, watch, reset } = useForm({
     defaultValues: { summary: resume?.summary || '' }
   });
 
-  const onSubmit = (data) => {
-    setResume({
-      ...resume,
-      summary: data.summary
+  useEffect(() => {
+    reset({ summary: resume?.summary || '' });
+  }, [resume?.id, reset]);
+
+  useEffect(() => {
+    const subscription = watch((data) => {
+      setResume((prev) => ({
+        ...prev,
+        summary: data.summary,
+      }));
     });
-  };
+    return () => subscription.unsubscribe();
+  }, [watch, setResume]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <div className="space-y-3">
       <div>
         <label className="text-sm font-medium text-dark">Professional Summary</label>
         <textarea
@@ -23,13 +31,6 @@ export default function SummarySection({ resume, setResume }) {
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
       </div>
-
-      <button
-        type="submit"
-        className="w-full px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition"
-      >
-        Save
-      </button>
-    </form>
+    </div>
   );
 }

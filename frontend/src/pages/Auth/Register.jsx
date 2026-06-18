@@ -14,7 +14,7 @@ export default function Register() {
   const [isLoading, setIsLoading] = useState(false);
   const [serverError, setServerError] = useState('');
   const { showError, showSuccess } = useToast();
-  const { setUser, setToken } = useAuthStore();
+  const { setAuth } = useAuthStore();
 
   const password = watch('password');
 
@@ -34,12 +34,13 @@ export default function Register() {
         password: data.password
       });
 
-      // Store token and user
+      if (!response.token || !response.user) {
+        throw new Error('Invalid registration response from server');
+      }
+
       localStorage.setItem('token', response.token);
       localStorage.setItem('user', JSON.stringify(response.user));
-
-      setToken(response.token);
-      setUser(response.user);
+      setAuth(response.token, response.user);
 
       showSuccess('Account created successfully!');
       navigate('/dashboard');

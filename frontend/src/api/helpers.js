@@ -9,7 +9,7 @@ export const setupInterceptors = () => {
       if (error.response?.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        window.location.href = '/auth/login';
       }
 
       const message = error.response?.data?.message || error.message;

@@ -4,12 +4,12 @@ const createResume=async (req, res, next) => {
     try {
         const {
             title,
-            firstName,
-            lastName,
-            email,
-            phone,
-            summary,
-            userId
+            firstName = 'Untitled',
+            lastName = 'Resume',
+            email = 'not-provided@example.com',
+            phone = 'N/A',
+            summary = '',
+            template = 'modern',
         } = req.body;
 
         const resume = await prisma.resume.create({
@@ -20,6 +20,7 @@ const createResume=async (req, res, next) => {
                 email,
                 phone,
                 summary,
+                template,
                 userId: req.user.userId
             }
         });
@@ -122,8 +123,16 @@ const getFullResume=async(req,res,next)=>{
 
 const updateResume=async (req, res, next) => {
     try {
-        const {id}=req.params;
-        const {title}=req.body;
+        const { id } = req.params;
+        const {
+            title,
+            firstName,
+            lastName,
+            email,
+            phone,
+            summary,
+            template,
+        } = req.body;
 
         const existingResume =
         await prisma.resume.findFirst({
@@ -144,7 +153,13 @@ const updateResume=async (req, res, next) => {
                 id: Number(id)
             },
             data: {
-                title
+                ...(title !== undefined && { title }),
+                ...(firstName !== undefined && { firstName }),
+                ...(lastName !== undefined && { lastName }),
+                ...(email !== undefined && { email }),
+                ...(phone !== undefined && { phone }),
+                ...(summary !== undefined && { summary }),
+                ...(template !== undefined && { template }),
             }
         });
 

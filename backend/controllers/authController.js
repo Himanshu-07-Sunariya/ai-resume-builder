@@ -2,6 +2,14 @@ const prisma = require("../config/prisma");
 const bcrypt=require("bcryptjs");
 const jwt=require("jsonwebtoken");
 
+const sanitizeUser = (user) => {
+    const { password, ...safeUser } = user;
+    return safeUser;
+};
+
+const generateToken = (userId) =>
+    jwt.sign({ userId }, process.env.JWT_SECRET, { expiresIn: "7d" });
+
 const register=async(req,res,next)=>{
     try{
         const {
@@ -37,9 +45,12 @@ const register=async(req,res,next)=>{
             }
         });
 
+        const token = generateToken(user.id);
+
         res.status(201).json({
             message:"User registered successfully",
-            user
+            token,
+            user: sanitizeUser(user)
         });
     }
     catch(error){
@@ -70,25 +81,17 @@ const login=async (req,res,next)=>{
         );
 
         if(!isMatch){
-            return res.json({
-                message:"Password doesn't matched"
+            return res.status(401).json({
+                message:"Invalid credentials"
             });
         }
 
-        // password match then generate jwt token and give it to user to login
-        const token= jwt.sign(
-            {
-                userId:user.id
-            },
-            process.env.JWT_SECRET,
-            {
-                expiresIn:"7d"
-            }
-        );
+        const token = generateToken(user.id);
 
         res.json({
             message:"Login successfully",
-            token
+            token,
+            user: sanitizeUser(user)
         });
     }
     catch(error){

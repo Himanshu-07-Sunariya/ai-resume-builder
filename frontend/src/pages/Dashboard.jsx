@@ -106,7 +106,7 @@ export default function Dashboard() {
             <FileText className="mx-auto text-gray-300 mb-4" size={48} />
             <h3 className="text-lg font-semibold text-dark mb-2">No resumes yet</h3>
             <p className="text-gray-600 mb-6">Create your first resume to get started</p>
-            <Link to="/dashboard" className="btn-primary inline-block">
+            <Link to="/builder" className="btn-primary inline-block">
               Create Resume
             </Link>
           </div>

@@ -1,27 +1,34 @@
 import { useForm } from 'react-hook-form';
+import { useEffect } from 'react';
 
 export default function PersonalSection({ resume, setResume }) {
-  const { register, handleSubmit, formState: { errors } } = useForm({
+  const { register, watch, reset } = useForm({
     defaultValues: resume?.personal || {}
   });
 
-  const onSubmit = (data) => {
-    setResume({
-      ...resume,
-      personal: data
+  useEffect(() => {
+    reset(resume?.personal || {});
+  }, [resume?.id, reset]);
+
+  useEffect(() => {
+    const subscription = watch((data) => {
+      setResume((prev) => ({
+        ...prev,
+        personal: data,
+      }));
     });
-  };
+    return () => subscription.unsubscribe();
+  }, [watch, setResume]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
+    <div className="space-y-3">
       <div>
         <label className="text-sm font-medium text-dark">Full Name</label>
         <input
-          {...register('fullName', { required: 'Name is required' })}
+          {...register('fullName')}
           placeholder="John Doe"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
-        {errors.fullName && <p className="text-red-500 text-xs mt-1">{errors.fullName.message}</p>}
       </div>
 
       <div>
@@ -36,7 +43,7 @@ export default function PersonalSection({ resume, setResume }) {
       <div>
         <label className="text-sm font-medium text-dark">Email</label>
         <input
-          {...register('email', { required: 'Email is required' })}
+          {...register('email')}
           type="email"
           placeholder="john@example.com"
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
@@ -70,13 +77,6 @@ export default function PersonalSection({ resume, setResume }) {
           className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
         />
       </div>
-
-      <button
-        type="submit"
-        className="w-full px-3 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 transition"
-      >
-        Save
-      </button>
-    </form>
+    </div>
   );
 }
